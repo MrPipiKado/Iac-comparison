@@ -1,0 +1,7 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "AWS CloudFormation Root stack"
+Resources: 
+  VPCStack: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: VPC.yml
