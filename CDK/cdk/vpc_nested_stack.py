@@ -33,18 +33,18 @@ class NetworkLayerStack(NestedStack):
                                                               vpc_id=self.database_vpc.vpc_id,
                                                               )
 
-        self.application_public_subnets = [ec2.PublicSubnet(self, f"AppPublicSubnet{_}",
+        self.application_public_subnets = [ec2.Subnet(self, f"AppPublicSubnet{_}",
                                                             availability_zone=self.availability_zones[_],
                                                             cidr_block=f"10.0.{_}.0/24",
                                                             vpc_id=self.application_vpc.vpc_id
                                                             ) for _ in range(2)]
-        self.application_private_subnets = [ec2.PublicSubnet(self, f"AppPrivateSubnet{_}",
+        self.application_private_subnets = [ec2.Subnet(self, f"AppPrivateSubnet{_}",
                                                              availability_zone=self.availability_zones[_],
                                                              cidr_block=f"10.0.{_ + 2}.0/24",
                                                              vpc_id=self.application_vpc.vpc_id
                                                              ) for _ in range(2)]
 
-        self.database_private_subnets = [ec2.PublicSubnet(self, f"DBPrivateSubnet{_}",
+        self.database_private_subnets = [ec2.Subnet(self, f"DBPrivateSubnet{_}",
                                                           availability_zone=self.availability_zones[_],
                                                           cidr_block=f"192.168.{_}.0/24",
                                                           vpc_id=self.application_vpc.vpc_id
@@ -52,13 +52,13 @@ class NetworkLayerStack(NestedStack):
         for _ in self.application_public_subnets:
             _.add_default_internet_route(self.internet_gateway.attr_internet_gateway_id, self.internet_gateway)
 
-        for _ in self.application_private_subnets:
-            _.add_route(f"{_.id}Route", self.peering_connection.attr_internet_gateway_id,
-                        ec2.RouterType.VPC_PEERING_CONNECTION, "192.168.0.0/16")
+        for count, _ in enumerate(self.application_private_subnets):
+            _.add_route(id=f"AppPrivateRoute{count}", router_id=self.peering_connection.attr_id,
+                        router_type=ec2.RouterType.VPC_PEERING_CONNECTION, destination_cidr_block=self.database_vpc.vpc_id)
 
-        for _ in self.database_private_subnets:
-            _.add_route(f"{_.id}Route", self.peering_connection.attr_internet_gateway_id,
-                        ec2.RouterType.VPC_PEERING_CONNECTION, "192.168.0.0/16")
+        for count, _ in enumerate(self.database_private_subnets):
+            _.add_route(id=f"DBPrivateRoute{count}", router_id=self.peering_connection.attr_id,
+                        router_type=ec2.RouterType.VPC_PEERING_CONNECTION, destination_cidr_block=self.application_vpc.vpc_id)
 
     @property
     def app_vpc(self) -> ec2.IVpc:
