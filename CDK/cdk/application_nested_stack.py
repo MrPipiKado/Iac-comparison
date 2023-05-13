@@ -4,7 +4,8 @@ from aws_cdk import (
     NestedStack,
     aws_ec2 as ec2,
     aws_autoscaling as asg,
-    aws_elasticloadbalancingv2 as elbv2
+    aws_elasticloadbalancingv2 as elbv2,
+    aws_elasticloadbalancingv2_targets as elb_targets
 )
 from constructs import Construct
 
@@ -35,16 +36,25 @@ class ApplicationLayerStack(NestedStack):
                                             vpc=app_vpc,
                                             internet_facing=True,
                                             vpc_subnets=ec2.SubnetSelection(subnets=alb_subnets),
-                                            security_group=lb_sg,
+                                            security_group=lb_sg
                                             )
-    @property
-    def lb_sg(self) -> ec2.ISecurityGroup:
-        return self.load_balancer_sg
+        target_group = elbv2.ApplicationTargetGroup(
+            self, "TG",
+            vpc=app_vpc,
+            port=80,
+            protocol=elbv2.ApplicationProtocol.HTTP,
+            targets=[app_asg]
+        )
+        # Listener ALB port 443
+        #alb_listeners_443 = alb.add_listener(
+        #    id="ALBListeners443",
+        #    port=443,
+        #    default_target_groups=[target_group]
+        #)
+        # Listener ALB port 80 redirect
+        alb_listener_80 = alb.add_listener(
+            id="ALBListeners80",
+            port=80,
+            default_target_groups=[target_group]
+        )
 
-    @property
-    def app_sg(self) -> ec2.ISecurityGroup:
-        return self.application_sg
-
-    @property
-    def db_sg(self) -> ec2.ISecurityGroup:
-        return self.database_sg
