@@ -2,8 +2,9 @@ from typing import Dict, List
 
 from aws_cdk import (
     NestedStack,
+    Duration,
     aws_ec2 as ec2,
-    aws_autoscaling as asg,
+    aws_autoscaling as autoscaling,
     aws_elasticloadbalancingv2 as elbv2,
     aws_elasticloadbalancingv2_targets as elb_targets
 )
@@ -12,23 +13,29 @@ from constructs import Construct
 
 class ApplicationLayerStack(NestedStack):
 
-    def __init__(self, scope: Construct, construct_id: str, app_vpc: ec2.IVpc, alb_subnets: List[ec2.ISubnet], lb_sg: ec2.ISecurityGroup, app_sg: ec2.ISecurityGroup, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, app_vpc: ec2.IVpc, alb_subnets: List[ec2.ISubnet], lb_sg: ec2.ISecurityGroup, app_sg: ec2.ISecurityGroup, config: dict, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         template = ec2.LaunchTemplate(self, "LaunchTemplate",
-                                      instance_type=ec2.InstanceType("t2.micro"),
-                                      key_name="DiplomaKey",
+                                      instance_type=ec2.InstanceType(config["app_instance_type"]),
+                                      key_name=config["key_name"],
                                       launch_template_name="diploma-app",
                                       machine_image=ec2.MachineImage.latest_amazon_linux(),
                                       security_group=app_sg
                                       )
-        app_asg = asg.AutoScalingGroup(self, "ASG",
+        app_asg = autoscaling.AutoScalingGroup(self, "ASG",
             vpc=app_vpc,
             launch_template=template,
             auto_scaling_group_name="application-asg",
-            max_capacity=1,
+            max_capacity=2,
             min_capacity=1,
             desired_capacity=1,
+        )
+
+        app_asg.scale_on_cpu_utilization(
+            "ScaleASGAction",
+            target_utilization_percent=40,
+            disable_scale_in=False
         )
 
         alb = elbv2.ApplicationLoadBalancer(self,

@@ -14,26 +14,13 @@ import json
 class DBLayerStack(NestedStack):
 
     def __init__(self, scope: Construct, construct_id: str, db_sg: ec2.ISecurityGroup, db_vpc: ec2.IVpc,
-                 db_subnets: ec2.ISubnet,
+                 db_subnets: ec2.ISubnet, config: dict,
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # Create a Secrets Manager secret to store the RDS credentials
-        rds_secret = secretsmanager.Secret(self, "MyRDSSecret",
-                                           secret_name="mysql_admin",
-                                           generate_secret_string=secretsmanager.SecretStringGenerator(
-                                               exclude_punctuation=True,
-                                               include_space=False,
-                                               password_length=20
-                                           )
-                                           )
-
-
         db = rds.DatabaseInstance(self, "MyRdsInstance",
                                   engine=rds.DatabaseInstanceEngine.MYSQL,
-                                  instance_type=ec2.InstanceType.of(
-                                      ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO
-                                  ),
+                                  instance_type=ec2.InstanceType(config["db_instance_type"]),
                                   vpc=db_vpc,
                                   vpc_subnets=ec2.SubnetSelection(subnets=db_subnets),
                                   security_groups=[db_sg],

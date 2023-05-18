@@ -1,2 +1,15 @@
 aws-cdk-lib==2.28.1
 constructs>=10.0.0,<11.0.0
+PyYAML==6.0
+requests==2.28.2
+
+# Unit tests dependency
+tox==3.28.0
+pytest==7.2.1
+
+# Code quality Dependency
+black==22.3.0
+isort==5.10.1
+pre-commit==3.1.1
+pycln==2.1.1
+pylint==2.17.1
