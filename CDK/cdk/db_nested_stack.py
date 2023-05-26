@@ -18,7 +18,7 @@ class DBLayerStack(NestedStack):
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        db = rds.DatabaseInstance(self, "MyRdsInstance",
+        self.db = rds.DatabaseInstance(self, "MyRdsInstance",
                                   engine=rds.DatabaseInstanceEngine.MYSQL,
                                   instance_type=ec2.InstanceType(config["db_instance_type"]),
                                   vpc=db_vpc,

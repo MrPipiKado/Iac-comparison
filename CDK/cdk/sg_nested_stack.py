@@ -10,20 +10,20 @@ from constructs import Construct
 
 class SGLayerStack(NestedStack):
 
-    def __init__(self, scope: Construct, construct_id: str, app_vpc: ec2.IVpc, db_vpc: ec2.IVpc, general_config: dict, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, app_vpc: ec2.IVpc, db_vpc: ec2.IVpc, env_name: str, general_config: dict, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         self.load_balancer_sg = ec2.SecurityGroup(self, "LB_SG",
                                        vpc=app_vpc,
-                                        security_group_name="load-balancer-sg"
+                                       security_group_name=f"{env_name}-load-balancer-sg"
                                        )
         self.application_sg = ec2.SecurityGroup(self, "APP_SG",
                                                   vpc=app_vpc,
-                                                security_group_name="application-sg"
+                                                security_group_name=f"{env_name}-application-sg"
                                                   )
         self.database_sg = ec2.SecurityGroup(self, "DB_SG",
                                                   vpc=db_vpc,
-                                             security_group_name="database-sg"
+                                             security_group_name=f"{env_name}-database-sg"
                                                   )
 
         self.load_balancer_sg.add_ingress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(80))
@@ -37,7 +37,7 @@ class SGLayerStack(NestedStack):
             # Create a security group for the bastion host
             self.bastion_host_sg = ec2.SecurityGroup(self, "BastionSecurityGroup",
                                            vpc=app_vpc,
-                                                security_group_name="bastion-sg"
+                                                security_group_name=f"{env_name}-bastion-sg"
                                            )
 
             if general_config["BastionHost"]["access"] == "my_ip":

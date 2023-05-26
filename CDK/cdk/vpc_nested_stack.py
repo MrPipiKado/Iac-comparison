@@ -9,11 +9,12 @@ from constructs import Construct
 
 class NetworkLayerStack(NestedStack):
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, env_name: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # Create VPC
         self.application_vpc = ec2.Vpc(self, "APP_VPC",
+                                       vpc_name=f"{env_name}_APP_VPC",
                                        cidr="10.0.0.0/16",
                                        max_azs=2,
                                        enable_dns_hostnames=True,
@@ -21,18 +22,19 @@ class NetworkLayerStack(NestedStack):
                                        subnet_configuration=[
                                            ec2.SubnetConfiguration(
                                                subnet_type=ec2.SubnetType.PUBLIC,
-                                               name="Public",
+                                               name=f"{env_name}_APP_VPC_Public",
                                                cidr_mask=24
                                            ),
                                            ec2.SubnetConfiguration(
                                                subnet_type=ec2.SubnetType.PRIVATE_WITH_NAT,
-                                               name="Private",
+                                               name=f"{env_name}_APP_VPC_Private",
                                                cidr_mask=24
                                            )
                                        ]
                                        )
 
         self.database_vpc = ec2.Vpc(self, 'DB_VPC',
+                                    vpc_name=f"{env_name}_DB_VPC",
                                     cidr='192.168.0.0/16',
                                     max_azs=2,
                                     enable_dns_hostnames=True,
@@ -40,7 +42,7 @@ class NetworkLayerStack(NestedStack):
                                     subnet_configuration=[
                                         ec2.SubnetConfiguration(
                                             subnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
-                                            name='Isolated',
+                                            name=f"{env_name}_DB_VPC_Isolated",
                                             cidr_mask=24
                                         ),
                                     ],

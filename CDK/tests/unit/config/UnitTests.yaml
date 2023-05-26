@@ -1,0 +1,16 @@
+App:
+  min_server_count: 1
+  max_server_count: 2
+  desired_server_count: 1
+  desired_cpu_percentage: 40
+  key_name: AppKey
+  app_instance_type: "t2.micro"
+DB:
+  db_instance_type: "t2.micro"
+  storage: 20
+  alert_on_storage_percentage: 70
+  notification_email:
+BastionHost:
+  enabled: true
+  access: "127.0.0.1/32"
+  key_name: BastionKey

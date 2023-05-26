@@ -20,19 +20,19 @@ class BastionLayerStack(NestedStack):
 
 
         # Create an IAM role for the bastion host
-        bastion_role = iam.Role(self, "BastionRole",
+        self.bastion_role = iam.Role(self, "BastionRole",
                                 assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"),
                                 managed_policies=[
                                     iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSSMManagedInstanceCore")]
                                 )
 
         # Create the bastion host instance
-        bastion_instance = ec2.Instance(self, "BastionInstance",
+        self.bastion_instance = ec2.Instance(self, "BastionInstance",
                                         vpc=app_vpc,
                                         vpc_subnets=ec2.SubnetSelection(subnets=alb_subnets),
                                         instance_type=ec2.InstanceType(instance_type_identifier="t2.micro"),
                                         machine_image=ec2.MachineImage.latest_amazon_linux(),
                                         security_group=bastion_sg,
-                                        role=bastion_role,
+                                        role=self.bastion_role,
                                         key_name=config["key_name"],
                                         )
