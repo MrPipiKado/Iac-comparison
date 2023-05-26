@@ -3,11 +3,11 @@ import requests
 
 class MyIP:
     def __init__(self):
-        self.url = 'https://api.ipify.org?format=json'
+        self.url = "https://api.ipify.org?format=json"
 
     def get(self) -> str:
         response = requests.get(self.url)
-        public_ip = response.json()['ip']
+        public_ip = response.json()["ip"]
         return str(public_ip)
 
     def get_ip_cidr(self) -> str:
