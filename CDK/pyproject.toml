@@ -16,7 +16,10 @@ fail-under = 9.0
 disable = [
     "missing-module-docstring",
     "missing-class-docstring",
-    "missing-function-docstring"
+    "missing-function-docstring",
+    "too-few-public-methods",
+    "unspecified-encoding",
+    "consider-using-with"
 ]
 # Coverage
 [tool.coverage.run]

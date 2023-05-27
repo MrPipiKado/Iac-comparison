@@ -133,6 +133,7 @@ def test_db_creation():
             sg_layer_stack.db_sg,
             network_layer_stack.db_vpc,
             network_layer_stack.db_private_subnets,
+            env,
             configs.configs_with_names[env]["DB"],
         )
         template = assertions.Template.from_stack(db_layer)

@@ -6,7 +6,7 @@ class MyIP:
         self.url = "https://api.ipify.org?format=json"
 
     def get(self) -> str:
-        response = requests.get(self.url)
+        response = requests.get(self.url, timeout=30)
         public_ip = response.json()["ip"]
         return str(public_ip)
 

@@ -43,8 +43,10 @@ class CdkStack(Stack):
             self.sg_layer.db_sg,
             self.network_layer.db_vpc,
             self.network_layer.db_private_subnets,
+            construct_id,
             self.env_config["DB"],
         )
+        self.application_layer.add_dependency(self.db_layer)
 
         self.bastion_layer = BastionLayerStack(
             self,

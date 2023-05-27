@@ -5,6 +5,7 @@ App:
   desired_cpu_percentage: 40
   key_name: AppKey
   app_instance_type: "t2.micro"
+  user_data: ./tests/unit/config/user_data.sh
 DB:
   db_instance_type: "t2.micro"
   storage: 20
@@ -12,5 +13,5 @@ DB:
   notification_email:
 BastionHost:
   enabled: true
-  access: "127.0.0.1/32"
+  access: my_ip
   key_name: BastionKey

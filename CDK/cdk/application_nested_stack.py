@@ -1,9 +1,10 @@
 from typing import List
 
-from aws_cdk import NestedStack
+from aws_cdk import CfnOutput, NestedStack
 from aws_cdk import aws_autoscaling as autoscaling
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_elasticloadbalancingv2 as elbv2
+from aws_cdk import aws_iam as iam
 from constructs import Construct
 
 
@@ -22,14 +23,31 @@ class ApplicationLayerStack(NestedStack):
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        role = iam.Role(
+            self,
+            "ASGRole",
+            assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"),
+        )
+        role.add_managed_policy(
+            iam.ManagedPolicy.from_aws_managed_policy_name("SecretsManagerReadWrite")
+        )
+        role.add_managed_policy(
+            iam.ManagedPolicy.from_aws_managed_policy_name("AmazonRDSReadOnlyAccess")
+        )
+
+        with open(config["user_data"], "r") as file:
+            user_data_script = file.read()
+
         self.template = ec2.LaunchTemplate(
             self,
             "LaunchTemplate",
             instance_type=ec2.InstanceType(config["app_instance_type"]),
             key_name=config["key_name"],
+            user_data=ec2.UserData.custom(user_data_script),
             launch_template_name=f"{env_name}-app",
             machine_image=ec2.MachineImage.latest_amazon_linux(),
             security_group=app_sg,
+            role=role,
         )
         self.app_asg = autoscaling.AutoScalingGroup(
             self,
@@ -70,6 +88,13 @@ class ApplicationLayerStack(NestedStack):
         #    default_target_groups=[target_group]
         # )
         # Listener ALB port 80 redirect
-        alb_listener_80 = self.alb.add_listener(
+        self.alb_listener_80 = self.alb.add_listener(
             id="ALBListeners80", port=80, default_target_groups=[self.target_group]
+        )
+
+        CfnOutput(
+            self,
+            "ALBURL",
+            value=self.alb.load_balancer_dns_name,
+            description="URL of the ALB",
         )

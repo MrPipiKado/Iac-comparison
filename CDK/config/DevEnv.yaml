@@ -5,6 +5,7 @@ App:
   desired_cpu_percentage: 40
   key_name: AppKey
   app_instance_type: "t2.micro"
+  user_data: ./config/user_data.sh
 DB:
   db_instance_type: "t2.micro"
   storage: 20
