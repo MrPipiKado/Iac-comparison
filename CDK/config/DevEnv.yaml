@@ -7,6 +7,8 @@ App:
   app_instance_type: "t2.micro"
   user_data: ./config/user_data.sh
 DB:
+  db_engine: MYSQL
+  db_port: 3306
   db_instance_type: "t2.micro"
   storage: 20
   alert_on_storage_percentage: 70

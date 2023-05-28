@@ -46,7 +46,8 @@ class SGLayerStack(NestedStack):
         )
 
         self.database_sg.add_ingress_rule(
-            peer=self.application_sg, connection=ec2.Port.tcp(3306)
+            peer=self.application_sg,
+            connection=ec2.Port.tcp(general_config["DB"]["db_port"]),
         )
 
         if general_config["BastionHost"]["enabled"]:

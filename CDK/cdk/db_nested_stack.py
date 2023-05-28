@@ -3,6 +3,12 @@ from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_rds as rds
 from constructs import Construct
 
+db_engine_maping = {
+    "MYSQL": rds.DatabaseInstanceEngine.MYSQL,
+    "POSTGRES": rds.DatabaseInstanceEngine.POSTGRES,
+    "SQL_SERVER_SE": rds.DatabaseInstanceEngine.SQL_SERVER_SE,
+}
+
 
 class DBLayerStack(NestedStack):
     def __init__(
@@ -22,7 +28,8 @@ class DBLayerStack(NestedStack):
             self,
             "MyRdsInstance",
             instance_identifier=f"{env_name}-db",
-            engine=rds.DatabaseInstanceEngine.MYSQL,
+            engine=db_engine_maping[config["db_engine"]],
+            port=int(config["db_port"]),
             instance_type=ec2.InstanceType(config["db_instance_type"]),
             vpc=db_vpc,
             vpc_subnets=ec2.SubnetSelection(subnets=db_subnets),
