@@ -81,13 +81,7 @@ class ApplicationLayerStack(NestedStack):
             protocol=elbv2.ApplicationProtocol.HTTP,
             targets=[self.app_asg],
         )
-        # Listener ALB port 443
-        # alb_listeners_443 = alb.add_listener(
-        #    id="ALBListeners443",
-        #    port=443,
-        #    default_target_groups=[target_group]
-        # )
-        # Listener ALB port 80 redirect
+
         self.alb_listener_80 = self.alb.add_listener(
             id="ALBListeners80", port=80, default_target_groups=[self.target_group]
         )

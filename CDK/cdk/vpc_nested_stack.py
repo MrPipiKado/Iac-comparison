@@ -57,14 +57,9 @@ class NetworkLayerStack(NestedStack):
             peer_vpc_id=self.database_vpc.vpc_id,
         )
 
-        self.application_public_subnets = self.application_vpc.public_subnets
-        self.application_private_subnets = self.application_vpc.private_subnets
-
-        self.database_private_subnets = self.database_vpc.isolated_subnets
-
         for count, _ in enumerate(self.application_private_subnets):
             _.add_route(
-                id=f"AppPrivateRoute{count}",
+                id=f"AppToDbRoute{count}",
                 router_id=self.peering_connection.attr_id,
                 router_type=ec2.RouterType.VPC_PEERING_CONNECTION,
                 destination_cidr_block=self.database_vpc.vpc_cidr_block,
@@ -72,12 +67,16 @@ class NetworkLayerStack(NestedStack):
 
         for count, _ in enumerate(self.database_private_subnets):
             _.add_route(
-                id=f"DBPrivateRoute{count}",
+                id=f"DBToAppRoute{count}",
                 router_id=self.peering_connection.attr_id,
                 router_type=ec2.RouterType.VPC_PEERING_CONNECTION,
                 destination_cidr_block=self.application_vpc.vpc_cidr_block,
             )
 
+        self.application_public_subnets = self.application_vpc.public_subnets
+        self.application_private_subnets = self.application_vpc.private_subnets
+
+        self.database_private_subnets = self.database_vpc.isolated_subnets
     @property
     def app_vpc(self) -> ec2.IVpc:
         return self.application_vpc
