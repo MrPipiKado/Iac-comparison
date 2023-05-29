@@ -1,6 +1,10 @@
 from aws_cdk import Duration, NestedStack, RemovalPolicy
+from aws_cdk import aws_cloudwatch as cloudwatch
+from aws_cdk import aws_cloudwatch_actions as cw_actions
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_rds as rds
+from aws_cdk import aws_sns as sns
+from aws_cdk import aws_sns_subscriptions as subscriptions
 from constructs import Construct
 
 db_engine_maping = {
@@ -35,7 +39,7 @@ class DBLayerStack(NestedStack):
             vpc_subnets=ec2.SubnetSelection(subnets=db_subnets),
             security_groups=[db_sg],
             deletion_protection=False,
-            allocated_storage=20,
+            allocated_storage=config["storage"],
             max_allocated_storage=100,
             storage_type=rds.StorageType.GP2,
             backup_retention=Duration.days(7),
@@ -43,4 +47,28 @@ class DBLayerStack(NestedStack):
             credentials=rds.Credentials.from_generated_secret(
                 "mysql_admin", secret_name=f"{env_name}-db-secret"
             ),
+        )
+
+        # Create an SNS topic for notifications
+        self.sns_topic = sns.Topic(self, "RdsAlertTopic")
+
+        # Create a CloudWatch alarm for storage usage
+        self.alarm = cloudwatch.Alarm(
+            self,
+            "RdsStorageAlarm",
+            metric=self.db_instance.metric_free_storage_space(),
+            comparison_operator=cloudwatch.ComparisonOperator.LESS_THAN_OR_EQUAL_TO_THRESHOLD,
+            threshold=config["alert_on_storage_percentage"] / 10 * config["storage"],
+            evaluation_periods=1,
+            alarm_name="RDS Storage Alarm",
+            alarm_description="The RDS storage is 70% full or above",
+            treat_missing_data=cloudwatch.TreatMissingData.NOT_BREACHING,
+            actions_enabled=True,
+        )
+
+        self.alarm.add_alarm_action(cw_actions.SnsAction(self.sns_topic))
+
+        # Add a subscription to the SNS topic to receive notifications
+        self.sns_topic.add_subscription(
+            subscriptions.EmailSubscription(config["notification_email"])
         )
