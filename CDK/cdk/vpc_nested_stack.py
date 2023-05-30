@@ -50,6 +50,12 @@ class NetworkLayerStack(NestedStack):
                 ),
             ],
         )
+
+        self.application_public_subnets = self.application_vpc.public_subnets
+        self.application_private_subnets = self.application_vpc.private_subnets
+
+        self.database_private_subnets = self.database_vpc.isolated_subnets
+
         self.peering_connection = ec2.CfnVPCPeeringConnection(
             self,
             "AppDbVpcPeeringConn",
@@ -73,10 +79,6 @@ class NetworkLayerStack(NestedStack):
                 destination_cidr_block=self.application_vpc.vpc_cidr_block,
             )
 
-        self.application_public_subnets = self.application_vpc.public_subnets
-        self.application_private_subnets = self.application_vpc.private_subnets
-
-        self.database_private_subnets = self.database_vpc.isolated_subnets
     @property
     def app_vpc(self) -> ec2.IVpc:
         return self.application_vpc

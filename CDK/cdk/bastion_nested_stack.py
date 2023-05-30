@@ -17,7 +17,6 @@ class BastionLayerStack(NestedStack):
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # Create an IAM role for the bastion host
         self.bastion_role = iam.Role(
             self,
             "BastionRole",
@@ -29,7 +28,6 @@ class BastionLayerStack(NestedStack):
             ],
         )
 
-        # Create the bastion host instance
         self.bastion_instance = ec2.Instance(
             self,
             "BastionInstance",

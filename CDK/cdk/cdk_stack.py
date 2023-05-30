@@ -1,4 +1,4 @@
-from aws_cdk import Stack  # Duration,; aws_sqs as sqs,
+from aws_cdk import Stack
 from constructs import Construct
 
 from cdk.application_nested_stack import ApplicationLayerStack

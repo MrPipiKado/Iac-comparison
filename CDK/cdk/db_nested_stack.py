@@ -49,10 +49,8 @@ class DBLayerStack(NestedStack):
             ),
         )
 
-        # Create an SNS topic for notifications
         self.sns_topic = sns.Topic(self, "RdsAlertTopic")
 
-        # Create a CloudWatch alarm for storage usage
         self.alarm = cloudwatch.Alarm(
             self,
             "RdsStorageAlarm",
@@ -68,7 +66,6 @@ class DBLayerStack(NestedStack):
 
         self.alarm.add_alarm_action(cw_actions.SnsAction(self.sns_topic))
 
-        # Add a subscription to the SNS topic to receive notifications
         self.sns_topic.add_subscription(
             subscriptions.EmailSubscription(config["notification_email"])
         )

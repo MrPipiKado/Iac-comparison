@@ -13,8 +13,6 @@ from cdk.sg_nested_stack import SGLayerStack
 from cdk.vpc_nested_stack import NetworkLayerStack
 
 
-# example tests. To run these tests, uncomment this file along with the example
-# resource in cdk/cdk_stack.py
 def test_nested_stack_count():
     app = core.App()
     for env in configs.config_names:
