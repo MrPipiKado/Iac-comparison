@@ -1,9 +1,7 @@
 
-# Welcome to your CDK Python project!
+# Welcome to My Diploma Project!
 
-This is a blank project for CDK development with Python.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+This is a project of Python CDK deployment template of web application with a database.
 
 This project is set up like a standard Python project.  The initialization
 process also creates a virtualenv within this project, stored under the `.venv`
@@ -12,7 +10,7 @@ directory.  To create the virtualenv it assumes that there is a `python3`
 package. If for any reason the automatic creation of the virtualenv fails,
 you can create the virtualenv manually.
 
-To manually create a virtualenv on MacOS and Linux:
+To manually create (if needed) a virtualenv on MacOS and Linux:
 
 ```
 $ python -m venv .venv
@@ -37,15 +35,29 @@ Once the virtualenv is activated, you can install the required dependencies.
 $ pip install -r requirements.txt
 ```
 
-At this point you can now synthesize the CloudFormation template for this code.
+At this point you can now run static code checks and unit test.
 
 ```
-$ cdk synth
+$ tox
 ```
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+Configure your AWS CLI
+
+```
+$ aws configure
+```
+
+Bootstrap your AWS environment
+
+```
+$ cdk bootstrap
+```
+
+Deploy to your AWS environment
+
+```
+$ cdk deploy
+```
 
 ## Useful commands
 
@@ -54,5 +66,3 @@ command.
  * `cdk deploy`      deploy this stack to your default AWS account/region
  * `cdk diff`        compare deployed stack with current state
  * `cdk docs`        open CDK documentation
-
-Enjoy!
